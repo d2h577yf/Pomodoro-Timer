@@ -72,4 +72,3 @@ callgrind.out.*
 # Note: Keep Cargo.lock if you are building an executable.
 # Uncomment the line below if you are building a library:
 # Cargo.lock
-/assets/

@@ -115,9 +115,9 @@ impl eframe::App for PomodoroTimer {
         self.tick();
 
         egui::CentralPanel::default().show(ctx , |ui| {
-           let secs = self.current_time.as_secs();
+            let ms = self.current_time.as_millis();
 
-            ui.label(format!("{}秒",secs));
+            ui.label(format!("{}毫秒",ms));
 
             if ui.button("开始/暂停").clicked() {
                 self.is_running = !self.is_running;
@@ -125,6 +125,27 @@ impl eframe::App for PomodoroTimer {
                 if self.is_running {
                     self.last_tick = Some(Instant::now());
                 }
+            }
+
+            if ui.button("倒计时").clicked() {
+
+                self.is_running = false;
+                self.current_time = self.focus_duration;
+
+                self.mode = RunningMode::Down;
+            } else if ui.button("正计时").clicked() {
+                self.is_running = false;
+                self.current_time = Duration::from_secs(0);
+
+                self.mode = RunningMode::Up;
+            } else if ui.button("番茄钟").clicked() {
+                self.is_running = false;
+                self.current_time = self.focus_duration;
+                self.mode = RunningMode::Loop;
+            };
+
+            if self.mode != RunningMode::Up {
+
             }
         });
 
