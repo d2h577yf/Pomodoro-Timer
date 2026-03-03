@@ -135,7 +135,7 @@ impl eframe::App for PomodoroTimer {
                 self.mode = RunningMode::Down;
             } else if ui.button("正计时").clicked() {
                 self.is_running = false;
-                self.current_time = Duration::from_secs(0);
+                self.current_time = Duration::ZERO;
 
                 self.mode = RunningMode::Up;
             } else if ui.button("番茄钟").clicked() {
@@ -144,8 +144,20 @@ impl eframe::App for PomodoroTimer {
                 self.mode = RunningMode::Loop;
             };
 
-            if self.mode != RunningMode::Up {
+            let mut focustime = 0.0;
+            let mut breaktime = 0.0;
 
+            ui.add(egui::Slider::new(&mut focustime,0.0..=60.0).text("专注时间/分钟").step_by(0.5));
+            ui.add(egui::Slider::new(&mut breaktime,0.0..=60.0).text("休息时间/分钟").step_by(0.5));
+
+            if self.mode != RunningMode::Up {
+                 if ui.button("设置专注时间").clicked() {
+                     self.focus_duration = Duration::from_secs_f64(focustime * 60.0);
+                }
+
+                if ui.button("设置休息时间").clicked() {
+                    self.break_duration = Duration::from_secs_f64(breaktime * 60.0);
+                }
             }
         });
 
