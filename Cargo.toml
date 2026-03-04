@@ -1,5 +1,5 @@
 [package]
-name = "Pomodoro_Timer"
+name = "pomodoro_timer"
 version = "0.1.0"
 edition = "2024"
 

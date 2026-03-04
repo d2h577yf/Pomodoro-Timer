@@ -115,9 +115,13 @@ impl eframe::App for PomodoroTimer {
         self.tick();
 
         egui::CentralPanel::default().show(ctx , |ui| {
-            let ms = self.current_time.as_millis();
+            let total_ms = self.current_time.as_millis();
 
-            ui.label(format!("{}毫秒",ms));
+            let s = total_ms / 1000 % 60;
+            let min = total_ms / 1000 / 60;
+            let ms_part = total_ms % 1000;
+
+            ui.label(format!("{}分{:02}秒{:03}毫秒", min, s, ms_part));
 
             if ui.button("开始/暂停").clicked() {
                 self.is_running = !self.is_running;
@@ -144,22 +148,30 @@ impl eframe::App for PomodoroTimer {
                 self.mode = RunningMode::Loop;
             };
 
-            let mut focustime = 0.0;
-            let mut breaktime = 0.0;
+            let mut temp_focus_mins = self.focus_duration.as_secs_f64() / 60.0;
+            let mut temp_break_mins = self.break_duration.as_secs_f64() / 60.0;
 
-            ui.add(egui::Slider::new(&mut focustime,0.0..=60.0).text("专注时间/分钟").step_by(0.5));
-            ui.add(egui::Slider::new(&mut breaktime,0.0..=60.0).text("休息时间/分钟").step_by(0.5));
+            if ui.add(egui::Slider::new(&mut temp_focus_mins, 0.0..=60.0)
+                .text("专注时间/分钟")
+                .step_by(0.5))
+                .changed()
+            {
+                self.focus_duration = Duration::from_secs_f64(temp_focus_mins * 60.0);
 
-            if self.mode != RunningMode::Up {
-                 if ui.button("设置专注时间").clicked() {
-                     self.focus_duration = Duration::from_secs_f64(focustime * 60.0);
-                }
-
-                if ui.button("设置休息时间").clicked() {
-                    self.break_duration = Duration::from_secs_f64(breaktime * 60.0);
+                if !self.is_running && self.mode != RunningMode::Up {
+                    self.current_time = self.focus_duration;
                 }
             }
+
+            if ui.add(egui::Slider::new(&mut temp_break_mins, 0.0..=60.0)
+                .text("休息时间/分钟")
+                .step_by(0.5))
+                .changed()
+            {
+                self.break_duration = Duration::from_secs_f64(temp_break_mins * 60.0);
+            }
         });
+
 
         if self.is_running {
             ctx.request_repaint();

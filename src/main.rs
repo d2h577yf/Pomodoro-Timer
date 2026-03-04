@@ -1,4 +1,4 @@
-use Pomodoro_Timer::PomodoroTimer;
+use pomodoro_timer::PomodoroTimer;
 
 fn main() -> eframe::Result<()>  {
     let options =  eframe::NativeOptions {
