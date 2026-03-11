@@ -2,6 +2,7 @@ use std::sync::Arc;
 use eframe::{egui, Frame};
 use std::time::{Duration,Instant};
 use egui::Context;
+use egui::StrokeKind::Inside;
 
 #[derive(PartialEq, Clone, Copy)]
 enum RunningMode {
@@ -133,11 +134,45 @@ impl eframe::App for PomodoroTimer {
                     egui::Color32::GRAY
                 };
 
-                ui.label(
-                   egui::RichText::new(time_str)
-                       .size(60.0)
-                       .strong()
-                       .color(time_color)
+                let response = ui.label(
+                    egui::RichText::new(time_str.clone())
+                        .size(60.0)
+                        .strong()
+                        .color(egui::Color32::TRANSPARENT)
+                );
+
+                let painter = ui.painter();
+                let progress = self.current_time.as_secs_f64() / self.focus_duration.as_secs_f64();
+
+                let mut dynamic_rect = response.rect;
+                let full_width = dynamic_rect.width();
+                dynamic_rect.set_width(full_width * (progress as f32));
+
+                let painter_color = (
+                    4.0,
+                    egui::Color32::from_rgb(
+                        255 - (progress * 255.0) as u8,
+                        (progress * 255.0) as u8,
+                        0
+                    )
+                );
+
+                painter.rect(
+                    dynamic_rect,
+                    8.0,
+                    painter_color.1,
+                    painter_color,
+                    Inside
+                );
+
+                ui.put(
+                    response.rect,
+                    egui::Label::new(
+                        egui::RichText::new(time_str)
+                            .size(60.0)
+                            .strong()
+                            .color(time_color)
+                    )
                 );
 
                 ui.add_space(30.0);
